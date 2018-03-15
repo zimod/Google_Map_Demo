@@ -13,7 +13,7 @@ function initMap() {
 
   const map = new google.maps.Map(document.getElementById('map'),options );
   //initial marker
-  const initial_marker = new google.maps.Marker({
+  let marker = new google.maps.Marker({
     position: Vancouver,
     map: map
   });
@@ -21,15 +21,30 @@ function initMap() {
   //Geocode API with AJAX
   const getLocationData = (addr) =>{
      let GeoAPI = "https://maps.googleapis.com/maps/api/geocode/json?address="+ addr +"&key=AIzaSyBNa4rB5d9Oss2Ff2L6daE99fG4Ue4OvIQ";
-     const showResult = (data)=>{
+     //call back frunction
+     const AddMarker = (data)=>{
        console.log(data);
        current_coord = data.results[0].geometry.location;
        console.log(current_coord);
+       //remove prev marker
+         marker.setMap(null);
+         window.setTimeout(function() {
+           map.setZoom(1);
+           //add current marker
+           marker = new google.maps.Marker({
+             position: current_coord,
+             map: map
+           });
+           //zoom in to the new location
+           window.setTimeout(function() {
+             map.setZoom(16);
+             map.setCenter(marker.getPosition());
+          }, 2000);
+        }, 1000);
      };
-     //AJAX
-     $.getJSON(GeoAPI,showResult);
-
-  };
+  //AJAX
+  $.getJSON(GeoAPI,AddMarker);
+};
   //event handlers
   document.getElementById("button").addEventListener("click", ()=>{
       current_pos = document.getElementById("addr").value;
@@ -42,5 +57,4 @@ function initMap() {
         document.getElementById("button").click();
      }
   });
-
 }
